@@ -199,7 +199,7 @@ function main()
     all = filter(x -> !badfile(source, x), readdir(source))
     unregistered = setdiff(all, registered)
     if isempty(unregistered)
-        opts = [string(get.(x, "file", nothing)) for x in db["videos"]]
+        opts = String[string(get.(x, "file", nothing)) for x in db["videos"]]
         menu = RadioMenu(opts)
         vidi = request("No newly added videos were detected. Which of the already registered videos would you like to work with?", menu)
         videos = db["videos"][vidi]
