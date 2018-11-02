@@ -2,8 +2,13 @@ using BinDeps
 
 basedir = @__DIR__
 
-mkdir(joinpath(homedir(), "coffee source"))
-cp(abspath(joinpath(basedir, "..", "src", "metadata.json")), joinpath(homedir(), "coffee source", "metadata.json"), force = true)
+source = joinpath(homedir(), "coffee source")
+if isfile(source)
+    @warn "$source exists, not overwriting it"
+else
+    mkdir(source)
+    cp(abspath(joinpath(basedir, "..", "src", "metadata.json")), joinpath(source, "metadata.json"), force = true)
+end
 
 program = "exiftool"
 
