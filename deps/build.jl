@@ -3,7 +3,7 @@ using BinDeps
 basedir = @__DIR__
 
 source = joinpath(homedir(), "coffee source")
-if isfile(source)
+if isdir(source)
     @warn "$source exists, not overwriting it"
 else
     mkdir(source)
