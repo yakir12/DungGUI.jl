@@ -24,18 +24,24 @@ This is a `Julia` script for registering the raw data into a long lasting and co
 
 ## How to run
 
-1. Start Julia -> a Julia-terminal popped up.
-2. Copy: 
+1. Locate the original videos: Find all of the original .MTS video files.
+2. Identify whole/fragmented files: Take one of the (earliest) .MTS files, check to see if there are any other .MTS files that subsequently follow it, for example:
+    File "name.MTS" starts at 2018-01-01T12:00:00 and is 10 minutes long, and file "other name.MTS" starts at 2018-01-01T12:10:00. Additionally, you can tell that the video is obviously a continuation of the video in the previous file, "name.MTS", because the stuff that happens in the first file ends abruptly and continues in the next file.
+    Compare that to an `.MTS` file that starts at 2018-01-01T12:00:00 and is 10 minutes long and another one that starts at 2018-01-01T12:50:00. Those two files couldn't possibly be connected.
+3. Copy the found file or fragmented files to the source folder: A new folder was created for you in your home directory (type `homedir()` in the julia terminal if you're uncertain where your "home directory" is) when you installed this package. The name of this folder is `coffee source`. Copy the file/s you found in step #2 into this folder. **Always copy one file at a time. If you identified a few files all connected to each other (so called fragmented files), then copy all of them together**.
+4. Start Julia -> a Julia-terminal popped up.
+5. Copy: 
    ```julia
    using DungGUI
    main()
    ```
    and paste it in the newly opened Julia-terminal, press Enter
-3. Locate the original videos: Find all of the original .MTS video files.
-4. Identify whole/fragmented files: Take one of the (earliest) .MTS files, check to see if there are any other .MTS files that subsequently follow it, for example:
-    File "name.MTS" starts at 2018-01-01T12:00:00 and is 10 minutes long, and file "other name.MTS" starts at 2018-01-01T12:10:00. Additionally, you can tell that the video is obviously a continuation of the video in the previous file, "name.MTS", because the stuff that happens in the first file ends abruptly and continues in the next file.
-5. Copy the found file (or fragmented files) to the source folder: A new folder was created for you in your home directory (type `homedir()` in the julia terminal if you're uncertain where it is), its name is `coffee source`. Copy the file/s you foundin step #4 into this folder. Always copy one file at a time. If you identified a few files all connected to each other (the where fragmented), then copy all of them together.
-6. Creation date & time: Determine what the real creation date & time are for the video you found in step #1. If you identified multiple videos that "should" have been one video (there are no real gaps between the videos), you only need to find the real creation date & time for the first video. Discovering the creation date & time can be done by either looking at the notes, listening to what people say in the video, looking at the video file's meta-data, or a combination of all of these methods. The program will ask you to input the correct date and time, but will supply you with an initial guess (taken from the file).
-7. Setting the correct start and end dates & times for the POIs: Each POI would have occurred in one or more of the videos. It has a video file name, start time (note: "start time" means the video starting time, e.g. 25 seconds or 00:00:25), and a name. If the POI stretched across time it will also have an end video file name and a end time (for example for a track POI). If it was instantaneous its end video file name and time will be equal to its starting video file name and time (for instance for a north POI). This point is especially important for the calibrations in the videos. Without the correct start and end times it will be impossible to auto-calibrate the videos. It is currently not crucial to find the correct start and end date & time for all the other POIs (nest, north, feeder, track, etc) but it would be very very very nice.
+6. Creation date & time: The program will ask you for the original creation date & time of the video file (if you copied a few fragmented files, it will ask only about the first of them). Determine what the real creation date & time are for the video you copied over. If you identified multiple videos that "should" have been one video (there are no real gaps between the videos), you only need to find the real creation date & time for the first video. Discovering the creation date & time can be done by either looking at the notes, listening to what people say in the video, looking at the video file's meta-data, or a combination of all of these methods. The program will supply you with an initial guess taken from the file's metadata.
+7. Setting the correct start and end times for the calibration POIs: Each calibration POI would have occurred in one or more of the videos. It has a calibration type (`Moving_checkerboard_calibration`: the classic moving checkerboard or `Stationary_checkerboard_calibration`: a large flat checkerboard on the ground), video file name, and start time (note: "start time" means the video starting time, e.g. 25 seconds, 0:25, 00:25, 0:0:25, or 00:00:25). If the POI is a `Moving_checkerboard_calibration` it stretched across time and it will also have an end video file name and a end time. If it was a `Stationary_checkerboard_calibration` its end video file name and time will be equal to its starting video file name and time (you won't need to input those). 
+8. Associate the correct runs with this calibration: Next you'll be asked to select an experiment that included that specific calibration. Following that, you'll need to select all of the runs within that experiment that were calibrated by that calibration. 
 
-There are really two large efforts involved here: one is finding the `.MTS` files and discovering their true creation date & time. The other is identifying the video file, start, and end times for the calibrations and connecting those to the runs that relied on that calibration. 
+That's basically it. You can rerun the `main()` command to:
+- Either register some more `.MTS` files that you found.
+- Or register more calibrations from files you already registered.
+
+One thing you can't currently do is add more runs to a calibration you already registered. This means that when you are about to check-in the runs the currecnt calibration is for, make sure you check-in all the runs without missing a single one. 
