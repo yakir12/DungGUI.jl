@@ -11,7 +11,7 @@ const source = joinpath(homedir(), "coffee source")
 exiftool_base = abspath(joinpath(pathof(DungGUI), "..", "..", "deps", "src", "exiftool", "exiftool"))
 const exiftool = exiftool_base*(Sys.iswindows() ? ".exe" : "")
 
-badfile(source, x) = x[1] == '.' || last(splitext(x)) ∉ [".MTS", ".mp4", ".avi"] || !isfile(joinpath(source, x))
+badfile(source, x) = x[1] == '.' || last(splitext(x)) ∉ [".MTS", ".mp4", ".MP4", ".avi", ".AVI", ".mpg", ".MPG", ".mov", ".MOV"] || !isfile(joinpath(source, x))
 
 function baddatetime(x)
     try
