@@ -51,7 +51,7 @@ function getearliest(file)
             end
         end
     end
-    earliest
+    DateTime(earliest)
 end
 
 function getduration(file)
@@ -93,7 +93,7 @@ function parsetime(x)
             parse_floating_seconds(s) + Minute(h)
         else
             h, m, s = hms
-            parse_floating_seconds(s) + Minute(h) + Hour(h)
+            parse_floating_seconds(s) + Minute(m) + Hour(h)
         end
     end
     t - Time(0)
@@ -178,6 +178,7 @@ function convert2ns!(db)
     end
     for vs in db["videos"], v in vs
         v["duration_ns"] = Nanosecond(v["duration_ns"])
+        v["datetime"] = DateTime(v["datetime"])
     end
 end
 
@@ -200,8 +201,8 @@ function main()
     convert2ns!(db)
 
     registered = [v["file"] for x in db["videos"] for v in x]
-    all = filter(x -> !badfile(source, x), readdir(source))
-    unregistered = setdiff(all, registered)
+    both = filter(x -> !badfile(source, x), readdir(source))
+    unregistered = setdiff(both, registered)
     if isempty(unregistered)
         opts = String[string(get.(x, "file", nothing)) for x in db["videos"]]
         menu = RadioMenu(opts)
