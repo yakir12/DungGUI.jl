@@ -1,0 +1,11 @@
+ERROR: LoadError: ArgumentError: Package BinDeps not found in current path:
+- Run `import Pkg; Pkg.add("BinDeps")` to install the BinDeps package.
+
+Stacktrace:
+ [1] require(::Module, ::Symbol) at ./loading.jl:820
+ [2] include at ./boot.jl:317 [inlined]
+ [3] include_relative(::Module, ::String) at ./loading.jl:1041
+ [4] include(::Module, ::String) at ./sysimg.jl:29
+ [5] include(::String) at ./client.jl:388
+ [6] top-level scope at none:0
+in expression starting at /home/yakir/DungGUI/deps/build.jl:1
