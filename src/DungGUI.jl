@@ -57,7 +57,8 @@ end
 function getduration(file)
     str = read(`$exiftool -j $file`, String)
     jsn = JSON.parse(str)
-    Time(first(jsn)["Duration"]) - Time(0)
+    txt = first(split(first(jsn)["Duration"]))
+    parsetime(txt)
 end
 
 function registervideos(source, unregistered)
@@ -79,17 +80,20 @@ end
 
 format_run(folder, id, date, comment) = "FOLDER: $folder, ID: $id, DATE: $date, COMMENT: $comment"
 
+parse_floating_seconds(x) = Time(0) + Nanosecond(round(Int, x*10^9))
 function parsetime(x)
     t = if !occursin(":", x)
-        s = parse(Int, x)
-        Time(0,0,s)
+        s = parse(Float64, x)
+        parse_floating_seconds(s)
     else
         y = split(x, ':')
-        hms = parse.(Int, y)
+        hms = parse.(Float64, y)
         if length(hms) == 2
-            Time(0, hms...)
+            m, s = hms
+            parse_floating_seconds(s) + Minute(h)
         else
-            Time(hms...)
+            h, m, s = hms
+            parse_floating_seconds(s) + Minute(h) + Hour(h)
         end
     end
     t - Time(0)
