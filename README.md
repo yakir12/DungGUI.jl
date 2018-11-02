@@ -18,7 +18,7 @@ This is a `Julia` script for registering the raw data into a long lasting and co
 3. Copy: 
    ```julia
    using Pkg
-   Pkg.add("https://github.com/yakir12/DungGUI.jl")
+   Pkg.add(PackageSpec(url = "https://github.com/yakir12/DungGUI.jl"))
    ```
    and paste it in the newly opened Julia-terminal, press Enter -> this may take some time.
 
