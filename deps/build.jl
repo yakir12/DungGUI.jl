@@ -12,22 +12,18 @@ end
 
 program = "ffprobe"
 
-if Sys.isunix()
-    file = "ffprobe-4.0.1-linux-64"
-    extension = ".zip"
-    binary_name = target = program
-end
+system = Sys.isapple() ? "osx" : "linux"
+file = "ffprobe-4.0.1-$system-64"
+extension = ".zip"
+binary_name = target = program
 
 filename = file*extension
 url = "https://github.com/vot/ffbinaries-prebuilt/releases/download/v4.0/$filename"
 
-if Sys.isunix()
-    run(
-        @build_steps begin
-            FileDownloader(url, joinpath(basedir, "downloads", filename))
-            CreateDirectory(joinpath(basedir, "src"))
-            FileUnpacker(joinpath(basedir, "downloads", filename), joinpath(basedir, "src"), program)
-        end
-       )
-end
-
+run(
+    @build_steps begin
+        FileDownloader(url, joinpath(basedir, "downloads", filename))
+        CreateDirectory(joinpath(basedir, "src"))
+        FileUnpacker(joinpath(basedir, "downloads", filename), joinpath(basedir, "src"), program)
+    end
+   )
