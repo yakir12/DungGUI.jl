@@ -8,8 +8,7 @@ const source = joinpath(homedir(), "coffee source")
 
 @assert isdir(source)
 
-exiftool_base = abspath(joinpath(pathof(DungGUI), "..", "..", "deps", "src", "exiftool", "exiftool"))
-const exiftool = exiftool_base*(Sys.iswindows() ? ".exe" : "")
+const ffprobe = abspath(joinpath(pathof(DungGUI), "..", "..", "deps", "src", "ffprobe"))
 
 badfile(x) = x[1] == '.' || last(splitext(x)) ∉ [".MTS", ".mp4", ".MP4", ".avi", ".AVI", ".mpg", ".MPG", ".mov", ".MOV"] || !isfile(joinpath(source, x))
 
@@ -25,9 +24,13 @@ end
 const df = DateFormat("YYYY:mm:dd HH:MM:SSzzzz")
 
 function getalldatetimes(file)
-    str = read(`$exiftool -j $file`, String)
-    jsn = first(JSON.parse(str))
-    [DateTime(ZonedDateTime(v, df)) for (k,v) in jsn if occursin(r"date"i, k)]
+    str = read(`$ffprobe -show_streams -of json -v quiet -i $file`, String)
+    jsn = JSON.parse(str)
+    stream = findfirst(x -> x["codec_type"] == "video", jsn["streams"])
+    txt = jsn["streams"][stream]
+    dts = [DateTime(ZonedDateTime(v, df)) for (k,v) in txt if occursin(r"date"i, k)]
+    push!(dts, unix2datetime(ctime(file)))
+    push!(dts, unix2datetime(mtime(file)))
 end
 
 function getdatetime(file)
@@ -69,10 +72,10 @@ function parsetime(x)
 end
 
 function getduration(file)
-    str = read(`$exiftool -j $file`, String)
+    str = read(`$ffprobe -show_streams -of json -v quiet -i $file`, String)
     jsn = JSON.parse(str)
-    txt = first(split(first(jsn)["Duration"]))
-    parsetime(txt)
+    stream = findfirst(x -> x["codec_type"] == "video", jsn["streams"])
+    parsetime(jsn["streams"][stream]["duration"])
 end
 
 function registervideos(unregistered)
@@ -105,8 +108,8 @@ function getstoptime(samefile, starttime, duration)
         println("When in that file did the calibration end?")
         l = strip(readline(stdin))
         stoptime = parsetime(l)
-        bad = samefile ? !(starttime ≤ stoptime ≤ duration) : stoptime > duration
-        bad ? println("time specified is longer than the duration of the video, $(nano2sec(duration)) sec (or shorter than the starting time if the start and end videos are the same). Try again") : return stoptime
+        bad = samefile ? !(starttime < stoptime ≤ duration) : stoptime > duration
+        bad ? println("time specified is longer than the duration of the video, $(nano2sec(duration)) sec (or equal/shorter than the starting time if the start and end videos are the same). Try again") : return stoptime
     end
 end
 
