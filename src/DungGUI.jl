@@ -155,23 +155,35 @@ function format_run(x)
     msg = ""
     for k in ["run_folder", "id", "date", "comment"]
         if haskey(x, k)
-            msg *= string(uppercase.(k), ": ", x[k])
+            msg *= string(uppercase.(k), ": ", x[k], "; ")
         end
     end
     msg
 end
 
 function getruns(db)
-    remainingexps = filter(x -> any(notcalibrated(k, db) for k in keys(x["runs"])), db["experiments"])
-    opts = get.(remainingexps, "name", nothing)
-    menu = RadioMenu(opts)
-    expi = request("Which experiment is this calibration in?", menu)
+        remainingexps = filter(x -> any(notcalibrated(k, db) for k in keys(x["runs"])), db["experiments"])
+        opts = get.(remainingexps, "name", nothing)
+        menu = RadioMenu(opts)
+        expi = request("Which experiment is this calibration in?", menu)
 
-    runuuids = collect(filter(k -> notcalibrated(k, db), keys(remainingexps[expi]["runs"])))
-    opts = [format_run(remainingexps[expi]["runs"][k]) for k in runuuids]
-    menu = MultiSelectMenu(opts)
-    runi = request("Select all the runs that are calibrated by this calibration", menu)
-    runuuids[collect(runi)]
+        runuuids = collect(filter(k -> notcalibrated(k, db), keys(remainingexps[expi]["runs"])))
+        opts = [format_run(remainingexps[expi]["runs"][k]) for k in runuuids]
+        menu = MultiSelectMenu(opts)
+        runi = request("Select all the runs that are calibrated by this calibration", menu)
+        runuuids[collect(runi)]
+end
+
+function addruns!(db, poiuuid)
+    while true 
+        runuuid = getruns(db)
+        for uuid in runuuid
+            push!(db["associations"][uuid], poiuuid)
+        end
+        println("Are there any more experiments/runs for this calibration? [y/[n]]")
+        l = strip(readline(stdin))
+        l ≠ "y" && return nothing
+    end
 end
 
 function convert2ns!(db)
@@ -196,13 +208,10 @@ end
 function addpoiruns!(db, videos)
     while true
         poi = getpoi(videos)
-        runuuid = getruns(db)
-
         poiuuid = string(uuid1())
         db["pois"][poiuuid] = poi
-        for uuid in runuuid
-            push!(db["associations"][uuid], poiuuid)
-        end
+
+        addruns!(db, poiuuid)
 
         println("Are there any more calibrations in these video file/s? [y/[n]]")
         l = strip(readline(stdin))
